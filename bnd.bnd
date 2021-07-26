@@ -1,0 +1,5 @@
+Bundle-Name: tmd-renderer
+Bundle-SymbolicName: com.liferay.commerce.demo.tmd.renderer
+Bundle-Version: 1.0.0
+Web-ContextPath: /tmd-order-renderer
+
