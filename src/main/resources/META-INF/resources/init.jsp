@@ -41,6 +41,11 @@
 <%@ page import="com.liferay.portal.kernel.exception.PortalException" %>
 <%@ page import="com.liferay.commerce.currency.model.CommerceMoney" %>
 
+<%@ page import="com.liferay.commerce.product.util.CPInstanceHelper" %>
+<%@ page import="com.liferay.commerce.product.service.CPOptionLocalService" %>
+<%@ page import="com.liferay.commerce.product.service.CPDefinitionSpecificationOptionValueLocalService" %>
+
+
 <liferay-frontend:defineObjects />
 <liferay-theme:defineObjects />
 <portlet:defineObjects />
