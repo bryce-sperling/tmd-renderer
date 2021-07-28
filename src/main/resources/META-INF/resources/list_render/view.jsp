@@ -32,6 +32,12 @@
 
                                 </th>
                                 <th>
+
+                                </th>
+                                <th>
+
+                                </th>
+                                <th>
                                     <p class="table-list-title">SKU</p>
                                 </th>
                                 <th>
@@ -91,7 +97,17 @@
 
                                 String thumbnailSrc = cpInstanceHelper.getCPInstanceThumbnailSrc(cpInstanceId);
                             %>
-
+							<td
+								<commerce-ui:compare-checkbox
+									CPCatalogEntry="<%= cpCatalogEntry %>"
+									label='<%= LanguageUtil.get(request, "compare") %>'
+								/>								
+							</td>
+							<td
+								<commerce-ui:add-to-wish-list
+									 CPCatalogEntry="<%= cpCatalogEntry %>"
+								 />
+							</td>
                             <td class="">
                                 <a href="<%= friendlyURL %>"><img class="card-img-top img-fluid" src="<%= thumbnailSrc %>"></a>
                             </td>
