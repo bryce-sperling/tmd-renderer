@@ -19,6 +19,8 @@
 
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.Map" %>
+<%@ page import="java.text.NumberFormat" %>
+
 
 <%@ page import="com.liferay.portal.kernel.language.LanguageUtil" %>
 
