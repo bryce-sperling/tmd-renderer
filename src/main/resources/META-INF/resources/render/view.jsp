@@ -44,12 +44,15 @@
 	}
 	.sub-grid {
 		display: grid;
-		grid-template-columns: auto auto;
+		grid-template-columns: 50% 50%;
 	}
 	.grid-item {
 		text-align: left;
-		border-bottom: 5px solid;
+		border-bottom: 2px solid;
 
+	}
+	.grid-item.spec-group-name {
+		font-weight:  bold;
 	}
 
 </style>

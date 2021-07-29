@@ -5,21 +5,29 @@ import com.liferay.commerce.product.content.render.list.CPContentListRenderer;
 import com.liferay.commerce.product.service.CPDefinitionSpecificationOptionValueLocalService;
 import com.liferay.commerce.product.service.CPOptionCategoryLocalService;
 import com.liferay.commerce.product.service.CPOptionLocalService;
-import com.liferay.commerce.product.service.CPOptionValueLocalService;
 import com.liferay.commerce.product.util.CPInstanceHelper;
+import com.liferay.commerce.wish.list.model.CommerceWishList;
+import com.liferay.commerce.wish.list.model.CommerceWishListItem;
+import com.liferay.commerce.wish.list.service.CommerceWishListItemLocalService;
+import com.liferay.commerce.wish.list.service.CommerceWishListLocalService;
 import com.liferay.frontend.taglib.servlet.taglib.util.JSPRenderer;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.ResourceBundleUtil;
 import com.liferay.portal.kernel.util.WebKeys;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Locale;
-import java.util.ResourceBundle;
+
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Jeff Handa
@@ -63,7 +71,27 @@ public class TMDProductListRenderer implements CPContentListRenderer {
                 httpServletRequest.setAttribute("cpInstanceHelper", _cpInstanceHelper);
                 httpServletRequest.setAttribute("cpDefinitionSpecificationOptionValueLocalService", _cpDefinitionSpecificationOptionValueLocalService);
                 httpServletRequest.setAttribute("reliabilityCategoryId", reliabilityCategoryId);
-
+                
+                List<CommerceWishList> wishList = _wishListLocalService.getCommerceWishLists(0, Integer.MAX_VALUE);
+                for(CommerceWishList aWishList : wishList) {
+                        if(aWishList.getDefaultWishList()) {
+                                httpServletRequest.setAttribute("defaultWishList", aWishList.getCommerceWishListId());
+                                break;
+                        }
+                }
+                
+                List<CommerceWishListItem> wishlistList = _wishListItemLocalService.getCommerceWishListItems(0, Integer.MAX_VALUE);
+                
+                Map<Long, CommerceWishListItem> wishlistMap = new HashMap();
+                CommerceWishListItem wishlistItem;
+                
+                for(int i = 0; i < wishlistList.size(); i++) {
+                        wishlistItem = wishlistList.get(i);
+                        
+                        wishlistMap.put(wishlistItem.getCProductId(), wishlistItem);
+                }
+                
+                httpServletRequest.setAttribute("wishlistMap", wishlistMap);
 
                 _jspRenderer.renderJSP(
                         _servletContext, httpServletRequest, httpServletResponse,
@@ -90,5 +118,9 @@ public class TMDProductListRenderer implements CPContentListRenderer {
         @Reference
         private CPOptionCategoryLocalService _cpOptionCategoryLocalService ;
 
-
+        @Reference
+        private CommerceWishListLocalService _wishListLocalService;
+        
+        @Reference
+        private CommerceWishListItemLocalService _wishListItemLocalService;
 }
