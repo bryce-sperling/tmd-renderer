@@ -20,20 +20,51 @@
 
 </style>
 
+
+<script>
+	function addWishListItem(wishlistId, cpId, cpiUuid, cpDefId) {
+		Liferay.Service(
+			'/commerce.commercewishlistitem/add-commerce-wish-list-item',
+		  	{
+			    commerceAccountId: 0,
+			    commerceWishListId: wishlistId,
+			    cProductId: cpId,
+			    cpInstanceUuid: cpiUuid,
+			    json: ''
+			},
+			function(obj) {
+		    	console.log(obj);
+		  		var el = document.getElementById("wishlist-" + cpDefId + "-button-id");
+		  		console.log("add wishlist elem classname=" + el.className)
+		  		el.className = "minium-card__add-to-wishlist-button minium-card minium-card__add-to-wishlist-button--added";
+		  	}
+		);
+	}
+	
+	function deleteWishListItem(wishlistItemId, cpDefId) {
+		Liferay.Service(
+			'/commerce.commercewishlistitem/delete-commerce-wish-list-item',
+			{
+				commerceWishListItemId: wishlistItemId
+			},
+			function(obj) {
+				console.log(obj);
+		  		var el = document.getElementById("wishlist-" + cpDefId + "-button-id");
+		  		console.log("delete wishlist elem classname=" + el.className)
+		  		el.className = "minium-card__add-to-wishlist-button";
+			}
+		);	
+	}
+</script>
+
 <c:choose>
     <c:when test="<%= !cpCatalogEntries.isEmpty() %>">
         <div class="dataset-display-content-wrapper">
             <div class="table-style-stacked">
                 <div class="table-responsive">
-                    <table class="table table-autofit">
+                    <table class="table table-autofit" id="datatable">
                         <thead>
                             <tr>
-                                <th>
-
-                                </th>
-                                <th>
-
-                                </th>
                                 <th>
 
                                 </th>
@@ -109,11 +140,13 @@
 								 />
 							</td>
                             <td class="">
-                                <a href="<%= friendlyURL %>"><img class="card-img-top img-fluid" src="<%= thumbnailSrc %>"></a>
+<%--                                 <a href="<%= friendlyURL %>"><img class="card-img-top img-fluid" src="<%= thumbnailSrc %>"></a> --%>
+                                 <a href="<%= friendlyURL %>"><img class="rounded mx-auto d-block" src="<%= thumbnailSrc %>"></a> 
                             </td>
                             <td class=""><a href="<%= friendlyURL %>"><%= skuValue %></a></td>
-                            <td class=""><a href="<%= friendlyURL %>"><%= cpCatalogEntry.getName() %></a></td>
-                            <td class="">$<%= cpCatalogEntry.getCPSkus().get(0).getPrice().setScale(0, BigDecimal.ROUND_UP)%></td>
+                            <td class="" style="text-overflow: ellipsis; overflow: hidden; white-space: nowrap; max-width: 400px; min-width: 200px;"><a href="<%= friendlyURL %>"><%= cpCatalogEntry.getName() %></a></td>
+<%--                            <td class=""><a href="<%= friendlyURL %>"><%= cpCatalogEntry.getName() %></a></td>  --%>
+                            <td class="">$<%= NumberFormat.getCurrencyInstance().format(cpCatalogEntry.getCPSkus().get(0).getPrice().setScale(0, BigDecimal.ROUND_UP))%></td>
 <%--                            <td class="">--%>
 <%--                                <commerce-ui:price--%>
 <%--                                        CPDefinitionId="<%= cpCatalogEntry.getCPDefinitionId() %>"--%>
@@ -126,7 +159,7 @@
 
                             <c:choose>
                                 <c:when test="<%= cpSku != null %>">
-                                    <td>
+                                    <td class="">
                                         <commerce-ui:add-to-cart
                                                         CPInstanceId="<%= cpSku.getCPInstanceId() %>"
                                                         id="<%= addToCartId %>"
@@ -134,7 +167,7 @@
                                     </td>
                                 </c:when>
                             <c:otherwise>
-                                <td>
+                                <td class=""">
                                     <a class="commerce-button commerce-button--outline w-100" href="<%= friendlyURL %>">
                                         <liferay-ui:message key="view-all-variants" />
                                     </a>
@@ -157,3 +190,13 @@
         </div>
     </c:otherwise>
 </c:choose>
+
+<script
+  src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+  crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.25/css/jquery.dataTables.css">
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.js"></script>
+<script>
+        $('#datatable').DataTable();
+</script>
