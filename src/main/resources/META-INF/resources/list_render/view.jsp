@@ -9,7 +9,8 @@
 
     List<CPCatalogEntry> cpCatalogEntries = cpDataSourceResult.getCPCatalogEntries();
     CommerceContext commerceContext = (CommerceContext)request.getAttribute(CommerceWebKeys.COMMERCE_CONTEXT);
-
+	
+    Map<Long, CommerceWishListItem> wishlistMap = (Map)request.getAttribute("wishlistMap");
 %>
 
 <style>
@@ -18,6 +19,13 @@
         display: none;
     }
 
+	.product-compare-checkbox__label {
+	    color: inherit;
+	    font-size: 14px;
+	    font-weight: normal;
+	    margin-left: 10px;
+	    display: none;
+	}
 </style>
 
 
@@ -66,7 +74,12 @@
                         <thead>
                             <tr>
                                 <th>
-
+                                </th>
+                                <th>
+                                </th>
+                                <th>
+                                </th>
+                                <th>
                                 </th>
                                 <th>
                                     <p class="table-list-title">SKU</p>
@@ -97,8 +110,12 @@
                                 CPSku cpSku = cpContentHelper.getDefaultCPSku(cpCatalogEntry);
 
                                 long cpDefinitionId = cpCatalogEntry.getCPDefinitionId();
+                                //System.out.println("cpDefinitionId=" + cpDefinitionId);
+                                String compareInputId = "product-" + cpDefinitionId + "-compare-checkbox";
+
                                 List<CPDefinitionSpecificationOptionValue> reliabilityItems = cpContentHelper.getCategorizedCPDefinitionSpecificationOptionValues(cpDefinitionId, reliabilityCategoryId);
 
+                                
                                 double equipmentDowntimeScore = 0.0;
                                 double repairEventsScore = 0.0;
 
@@ -117,6 +134,7 @@
 
                                 List<CPSku> cpSkus = cpCatalogEntry.getCPSkus();
                                 cpInstanceId = cpSkus.get(0).getCPInstanceId();
+                                //System.out.println("cpInstanceId=" + cpInstanceId);
 
                                 String addToCartId = PortalUtil.generateRandomKey(request, "add-to-cart");
 
@@ -127,18 +145,52 @@
                                 }
 
                                 String thumbnailSrc = cpInstanceHelper.getCPInstanceThumbnailSrc(cpInstanceId);
+
+                                
+                                CommerceWishListItem wishlistItem = wishlistMap.get(cpCatalogEntry.getCProductId());
+                               	
+                                System.out.println("cpDefinitionId=" + cpDefinitionId + ", in-wish-list=" + (wishlistItem != null));
+                                String heartClassname = (wishlistItem == null) ?
+                               			"minium-card__add-to-wishlist-button minium-card" : 
+                               			"minium-card__add-to-wishlist-button minium-card minium-card__add-to-wishlist-button--added";
+                            	
+                               	String heartButtonId = "wishlist-" + cpDefinitionId + "-button-id";
+                               	String heartJSCall = null;
+                               	
+                               	if (wishlistItem != null) {
+                               		heartJSCall = "deleteWishListItem(" + wishlistItem.getCommerceWishListItemId() 
+                               					+ ", " + cpDefinitionId + ")";
+                               	
+                               	}
+                               	else {
+                               		heartJSCall = "addWishListItem(" + request.getAttribute("defaultWishList")
+                               					+ ", " + cpCatalogEntry.getCProductId()
+                               					+ ", '" + cpSkus.get(0).getCPInstanceUuid() + "'"
+                               					+ ", " + cpDefinitionId + ")";
+                               	}
+         
+                               			
                             %>
-							<td
+
+    						<td class="px-5 pt-1">
 								<commerce-ui:compare-checkbox
-									CPCatalogEntry="<%= cpCatalogEntry %>"
-									label='<%= LanguageUtil.get(request, "compare") %>'
+									 CPDefinitionId="<%= cpDefinitionId %>"
+									 componentId="<%= compareInputId %>"
 								/>								
 							</td>
-							<td
-								<commerce-ui:add-to-wish-list
-									 CPCatalogEntry="<%= cpCatalogEntry %>"
-								 />
+							<td>
+								<button id="<%= heartButtonId %>" data-onclick="null" onclick="<%= heartJSCall %>" class="<%= heartClassname %>">
+									<svg class="lexicon-icon lexicon-icon-heart" focusable="false" role="presentation"><use xlink:href="/o/minium-theme/images/icons.svg#heart"/>
+									</svg>
+									<svg class="lexicon-icon lexicon-icon-heart-full" focusable="false" role="presentation"><use xlink:href="/o/minium-theme/images/icons.svg#heart-full"/>
+									</svg>
+								</button>
+
 							</td>
+							<td>
+
+							</td>
+
                             <td class="">
 <%--                                 <a href="<%= friendlyURL %>"><img class="card-img-top img-fluid" src="<%= thumbnailSrc %>"></a> --%>
                                  <a href="<%= friendlyURL %>"><img class="rounded mx-auto d-block" src="<%= thumbnailSrc %>"></a> 
