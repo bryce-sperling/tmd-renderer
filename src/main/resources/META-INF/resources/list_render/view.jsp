@@ -81,6 +81,12 @@
                                 <th>
                                 </th>
                                 <th>
+
+                                </th>
+                                <th>
+
+                                </th>
+                                <th>
                                     <p class="table-list-title">SKU</p>
                                 </th>
                                 <th>
