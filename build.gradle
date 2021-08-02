@@ -19,5 +19,5 @@ dependencies {
 	compileOnly group: "com.liferay.commerce", name: "com.liferay.commerce.frontend.taglib"
 	compileOnly group: "com.liferay.commerce", name: "com.liferay.commerce.currency.api"
 	compileOnly group: "com.liferay.commerce", name: "com.liferay.commerce.taglib"
-	compile group: 'com.liferay.portal', name: 'release.portal.api', version: '7.2.0'
+	compile group: 'com.liferay.portal', name: 'release.dxp.api', version: '7.3.0'
 }
