@@ -30,6 +30,42 @@
 
 
 <script>
+	function handleWishListItem(wishlistItemId, wishlistId, cpId, cpiUuid, cpDefId) {
+  		var el = document.getElementById("wishlist-" + cpDefId + "-button-id");
+		if(e.className == "minium-card__add-to-wishlist-button") {
+			Liferay.Service(
+					'/commerce.commercewishlistitem/add-commerce-wish-list-item',
+				  	{
+					    commerceAccountId: 0,
+					    commerceWishListId: wishlistId,
+					    cProductId: cpId,
+					    cpInstanceUuid: cpiUuid,
+					    json: ''
+					},
+					function(obj) {
+				    	console.log(obj);
+				  		console.log("add wishlist elem classname=" + el.className)
+				  		el.className = "minium-card__add-to-wishlist-button minium-card minium-card__add-to-wishlist-button--added";
+				  	}
+				);
+			
+		}
+		else {
+			Liferay.Service(
+					'/commerce.commercewishlistitem/delete-commerce-wish-list-item',
+					{
+						commerceWishListItemId: wishlistItemId
+					},
+					function(obj) {
+						console.log(obj);
+				  		console.log("delete wishlist elem classname=" + el.className)
+				  		el.className = "minium-card__add-to-wishlist-button";
+					}
+				);	
+			
+		}
+	}
+
 	function addWishListItem(wishlistId, cpId, cpiUuid, cpDefId) {
 		Liferay.Service(
 			'/commerce.commercewishlistitem/add-commerce-wish-list-item',
@@ -43,13 +79,17 @@
 			function(obj) {
 		    	console.log(obj);
 		  		var el = document.getElementById("wishlist-" + cpDefId + "-button-id");
-		  		console.log("add wishlist elem classname=" + el.className)
+		  		console.log("add wishlist elem classname=" + el.className);
+		  		console.log(obj.commerceWishListItemId);
+		  		el.onclick = function() {deleteWishListItem(obj.commerceWishListItemId, wishlistId, cpId, cpiUuid, cpDefId);}; 
 		  		el.className = "minium-card__add-to-wishlist-button minium-card minium-card__add-to-wishlist-button--added";
+//		  			"deleteWishListItem(" + obj.commerceWishListItemId + ", " + wishlistId + ", " + cpId + ", " + cpiUuid + ", " + cpDefId + ")";
 		  	}
 		);
 	}
 	
-	function deleteWishListItem(wishlistItemId, cpDefId) {
+
+	function deleteWishListItem(wishlistItemId, wishlistId, cpId, cpiUuid, cpDefId) {
 		Liferay.Service(
 			'/commerce.commercewishlistitem/delete-commerce-wish-list-item',
 			{
@@ -59,7 +99,9 @@
 				console.log(obj);
 		  		var el = document.getElementById("wishlist-" + cpDefId + "-button-id");
 		  		console.log("delete wishlist elem classname=" + el.className)
+		  		el.onclick = function() {addWishListItem(wishlistId, cpId, cpiUuid, cpDefId)};
 		  		el.className = "minium-card__add-to-wishlist-button";
+//		  			"addWishListItem(" + wishlistId + ", " + cpId + ", " + cpiUuid + ", " + cpDefId + ")";
 			}
 		);	
 	}
@@ -77,10 +119,9 @@
                                 </th>
                                 <th>
                                 </th>
-                                <th>
-                                </th>
-                                <th>
-                                </th>
+
+
+
                                 <th>
                                     <p class="table-list-title">CEID</p>
                                 </th>
@@ -157,9 +198,17 @@
                                	String heartButtonId = "wishlist-" + cpDefinitionId + "-button-id";
                                	String heartJSCall = null;
                                	
+                               	String wishlistItemStr = "";
+                               	
                                	if (wishlistItem != null) {
+                               		wishlistItemStr = String.valueOf(wishlistItem.getCommerceWishListItemId());
                                		heartJSCall = "deleteWishListItem(" + wishlistItem.getCommerceWishListItemId() 
-                               					+ ", " + cpDefinitionId + ")";
+                               		+ ", " + request.getAttribute("defaultWishList")
+                   					+ ", " + cpCatalogEntry.getCProductId()
+                   					+ ", '" + cpSkus.get(0).getCPInstanceUuid() + "'"
+                   					+ ", " + cpDefinitionId + ")";
+                               		//heartJSCall = "deleteWishListItem(" + wishlistItem.getCommerceWishListItemId() 
+                               		//			+ ", " + cpDefinitionId + ")";
                                	
                                	}
                                	else {
@@ -168,8 +217,13 @@
                                					+ ", '" + cpSkus.get(0).getCPInstanceUuid() + "'"
                                					+ ", " + cpDefinitionId + ")";
                                	}
-         
-                               			
+
+//                               	heartJSCall = "handleWishListItem(" + wishlistItemStr
+//                           		+ ", " + request.getAttribute("defaultWishList")
+//               					+ ", " + cpCatalogEntry.getCProductId()
+//               					+ ", '" + cpSkus.get(0).getCPInstanceUuid() + "'"
+//               					+ ", " + cpDefinitionId + ")";
+                               	                             	
                             %>
 
     						<td class="px-5 pt-1">
@@ -177,8 +231,7 @@
 									 CPDefinitionId="<%= cpDefinitionId %>"
 									 componentId="<%= compareInputId %>"
 								/>								
-							</td>
-							<td>
+
 								<button id="<%= heartButtonId %>" data-onclick="null" onclick="<%= heartJSCall %>" class="<%= heartClassname %>">
 									<svg class="lexicon-icon lexicon-icon-heart" focusable="false" role="presentation"><use xlink:href="/o/minium-theme/images/icons.svg#heart"/>
 									</svg>
@@ -187,9 +240,7 @@
 								</button>
 
 							</td>
-							<td>
 
-							</td>
 
                             <td class="">
 <%--                                 <a href="<%= friendlyURL %>"><img class="card-img-top img-fluid" src="<%= thumbnailSrc %>"></a> --%>
@@ -206,8 +257,8 @@
 <%--                                        id='<%= "productDetail_" + cpCatalogEntry.getCPDefinitionId() %>'--%>
 <%--                                />--%>
 <%--                            </td>--%>
-                            <td class=""><a href="<%= friendlyURL %>"><%= repairEventsScore %></a></td>
-                            <td class=""><a href="<%= friendlyURL %>"><%= equipmentDowntimeScore %></a></td>
+                            <td style="text-align:center;" class=""><a href="<%= friendlyURL %>"><%= repairEventsScore %></a></td>
+                            <td style="text-align:center;" class=""><a href="<%= friendlyURL %>"><%= equipmentDowntimeScore %></a></td>
 
                             <c:choose>
                                 <c:when test="<%= cpSku != null %>">
