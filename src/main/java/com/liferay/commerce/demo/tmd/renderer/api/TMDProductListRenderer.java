@@ -71,27 +71,45 @@ public class TMDProductListRenderer implements CPContentListRenderer {
                 httpServletRequest.setAttribute("cpInstanceHelper", _cpInstanceHelper);
                 httpServletRequest.setAttribute("cpDefinitionSpecificationOptionValueLocalService", _cpDefinitionSpecificationOptionValueLocalService);
                 httpServletRequest.setAttribute("reliabilityCategoryId", reliabilityCategoryId);
+            	
+//                long groupId = themeDisplay.getLayout().getGroupId();
+//                System.out.println("groupId=" + groupId);
+                
+
+//                List<CommerceWishList> wishList = _wishListLocalService.getCommerceWishLists(0, Integer.MAX_VALUE);
+                long wlUserId = themeDisplay.getUserId();
+
                 
                 List<CommerceWishList> wishList = _wishListLocalService.getCommerceWishLists(0, Integer.MAX_VALUE);
                 for(CommerceWishList aWishList : wishList) {
-                        if(aWishList.getDefaultWishList()) {
-                                httpServletRequest.setAttribute("defaultWishList", aWishList.getCommerceWishListId());
-                                break;
-                        }
+                	if(wlUserId != aWishList.getUserId()) {
+                		continue;
+                	}
+                	
+                	if(aWishList.getDefaultWishList()) {
+                		httpServletRequest.setAttribute("defaultWishList", aWishList.getCommerceWishListId());
+                		System.out.println("found wishlist=" + aWishList.getCommerceWishListId());
+                		break;
+                	}
                 }
                 
                 List<CommerceWishListItem> wishlistList = _wishListItemLocalService.getCommerceWishListItems(0, Integer.MAX_VALUE);
                 
-                Map<Long, CommerceWishListItem> wishlistMap = new HashMap();
-                CommerceWishListItem wishlistItem;
-                
-                for(int i = 0; i < wishlistList.size(); i++) {
-                        wishlistItem = wishlistList.get(i);
-                        
-                        wishlistMap.put(wishlistItem.getCProductId(), wishlistItem);
-                }
-                
-                httpServletRequest.setAttribute("wishlistMap", wishlistMap);
+            	Map<Long, CommerceWishListItem> wishlistMap = new HashMap();
+            	CommerceWishListItem wishlistItem;
+
+            	
+            	for(int i = 0; i < wishlistList.size(); i++) {
+            		wishlistItem = wishlistList.get(i);
+            		
+            		if(wishlistItem.getUserId() != wlUserId) {
+            			continue;
+            		}
+            		
+            		wishlistMap.put(wishlistItem.getCProductId(), wishlistItem);
+            	}
+            	
+            	httpServletRequest.setAttribute("wishlistMap", wishlistMap);
 
                 _jspRenderer.renderJSP(
                         _servletContext, httpServletRequest, httpServletResponse,
